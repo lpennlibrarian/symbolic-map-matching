@@ -1,0 +1,275 @@
+echo "# symbolic-map-matching" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/lpennlibrarian/symbolic-map-matching.git
+git push -u origin main
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Symbolic Map Matching</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+:root {
+--zone-size: 140px;
+--item-size: 120px;
+--accent: #2d7ff9;
+}
+body {
+font-family: system-ui, Arial, sans-serif;
+margin: 0;
+padding: 24px;
+background: #f7f8fb;
+color: #12141a;
+}
+.wrapper {
+max-width: 920px;
+margin: 0 auto;
+}
+header { margin-bottom: 16px; }
+h1 { font-size: 1.35rem; margin: 0 0 14px 0; }
+.intro { font-size: 1rem; margin-bottom: 12px; line-height: 1.5; }
+.to-example { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+.to-example img { max-width: 200px; height: auto; border-radius: 5px; border: 1px solid #ddd; background: #fff; }
+.instructions {
+background: #eef3ff; padding: 10px 14px; margin-bottom: 22px;
+border-radius: 8px; font-size: 1rem; color: #183372;
+}
+.stats { font-size: 0.98rem; color: #4a4f57; margin-bottom: 12px; }
+.game-area {
+display: flex; align-items: flex-start; justify-content: center;
+gap: 32px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.zone-list, .item-pool {
+display: flex; flex-direction: column; gap: 20px; min-width: 175px;
+}
+.zone {
+width: var(--zone-size); height: var(--zone-size);
+border: 2px dashed #bfcbe6; border-radius: 13px;
+display: flex; align-items: center; justify-content: center;
+background: #f3f6fd; transition: border-color 0.18s; position: relative;
+min-height: var(--zone-size);
+}
+.zone.dragover { border-color: var(--accent); background: #e6eefc; }
+.zone .prompt-label {
+position: absolute; font-size: 0.92em; top: 100%; left: 50%;
+transform: translate(-50%, 6px); color: #678; white-space: nowrap;
+}
+.drop-img {
+width: var(--item-size); height: var(--item-size);
+border-radius: 10px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+border: 1px solid #dadff0; background: #fff; transition: box-shadow 0.18s;
+touch-action: none;
+}
+.item-pool {
+align-items: center; justify-content: flex-start; min-width: 180px;
+background: #f8fafd; padding: 10px 6px; border-radius: 10px; border: 1px solid #e9eaf3;
+min-height: 450px;
+}
+.dragging { opacity: 0.6; box-shadow: 0 5px 18px #cbe1fd; }
+.zone.matched { border-color: #55cb76; background: #e2f9e1; transition: background 0.3s, border 0.3s; }
+.complete-message {
+font-size: 1.08em; color: #21663e; background: #e3faef; border: 1px solid #ace0c0;
+border-radius: 9px; padding: 14px 18px; margin-top: 24px; text-align: center; font-weight: 500;
+max-width: 700px; margin-left: auto; margin-right: auto;
+}
+.sr-only {
+position: absolute !important; height: 1px; width: 1px; overflow: hidden;
+clip: rect(1px, 1px, 1px, 1px); white-space: nowrap;
+}
+@media (max-width: 900px) {
+.game-area { flex-direction: column; align-items: center; }
+.zone-list, .item-pool { flex-direction: row; gap: 14px; min-width: unset; }
+.item-pool { flex-wrap: wrap; min-height: unset; }
+}
+@media (max-width: 600px) {
+:root { --zone-size: 100px; --item-size: 75px; }
+.to-example img { max-width: 110px; }
+}
+</style>
+</head>
+<body>
+
+Symbolic Map Matching
+Copy
+<div>  
+  Mapping is the process of creating a visual representation of an area, illustrating spatial relationships between features, whether geographical, data-driven, or conceptual. It involves gathering data through surveys, satellite imagery, or, in the case of medieval T-O maps, symbolic, circular representations of the world. A T-O map (or Orbis Terrarum) is a medieval world map representing the physical world as a circle divided into three parts by a "T" shape.  
+</div>  
+
+<div>  
+  <span>This example of a T-O map:</span>  
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Hereford_mappa_mundi.jpg/400px-Hereford_mappa_mundi.jpg" alt="T-O Map Example" loading="lazy">  
+</div>  
+
+<div>  
+  Instructions: Drag and drop the following locations with their reference photos. Once all of the matches have been completed, thank you for playing—and consider the items in the T‑O maps and their placement, as compared to the photo references.  
+</div>  
+
+<div>  
+  <span>Moves: 0</span> ·  
+  <span>Matches: 0</span> / 5  
+</div>  
+
+<div></div>  
+
+<div>  
+  <div></div>  
+  <div></div>  
+</div>  
+<div></div>  
+<script>
+// Five map targets and five matching photo references
+const MAPS = [
+"https://drive.google.com/uc?export=view&id=1JRngUAUVHe0sce58QPphM7ycKs4klyFt",
+"https://drive.google.com/uc?export=view&id=1kZUXaG_w0rbjDdrO-WKtxqBAJmfrfQWs",
+"https://drive.google.com/uc?export=view&id=1qzvOO58GlJ75X9Z1o_ZtTzunl4jh8IPP",
+"https://drive.google.com/uc?export=view&id=1sc1904nmgseaT3-BL6JvGiyKwZIPr3yJ",
+"https://drive.google.com/uc?export=view&id=1bAAWQGfSX1uVYAEIrN3mAOdJWSdCTxrQ"
+];
+const PHOTOS = [
+"https://drive.google.com/uc?export=view&id=1q16l0FpGCkQCwflhNMpPqSzYUs1hpTXB",
+"https://drive.google.com/uc?export=view&id=1MsPoBWAMJXG92ON1NluwJXn2R4WthojE",
+"https://drive.google.com/uc?export=view&id=15O2ElcRYiuHB43zM6oAvyWkKQPztscYV",
+"https://drive.google.com/uc?export=view&id=1ynGU8NcBsejHdVNMmGwPb3vQ5iCZPtlW",
+"https://drive.google.com/uc?export=view&id=11hDlkCO6Qsra65nHe7e-reO-vEutOlnN"
+];
+
+Copy
+const zonesEl = document.getElementById('zones');  
+const poolEl = document.getElementById('pool');  
+const movesEl = document.getElementById('moves');  
+const matchesEl = document.getElementById('matches');  
+const liveEl = document.getElementById('live');  
+const endMsgEl = document.getElementById('endmessage');  
+
+let moves = 0;  
+let matches = 0;  
+let gameComplete = false;  
+
+function shuffle(arr) {  
+  const a = arr.slice();  
+  for (let i = a.length - 1; i &gt; 0; i--) {  
+    const j = Math.floor(Math.random() * (i + 1));  
+    [a[i], a[j]] = [a[j], a[i]];  
+  }  
+  return a;  
+}  
+
+function renderGame() {  
+  // Build drop zones with map images  
+  zonesEl.innerHTML = '';  
+  for (let i = 0; i &lt; MAPS.length; ++i) {  
+    const z = document.createElement('div');  
+    z.className = 'zone';  
+    z.dataset.zone = i;  
+    z.tabIndex = 0;  
+    z.innerHTML = \`<img src alt="Map location \${i+1}"><span>Drop the matching photo</span>\`;  
+    zonesEl.appendChild(z);  
+
+    z.addEventListener('dragover', e =&gt; { if (!gameComplete) { e.preventDefault(); z.classList.add('dragover'); }});  
+    z.addEventListener('dragleave', () =&gt; z.classList.remove('dragover'));  
+    z.addEventListener('drop', e =&gt; {  
+      if (gameComplete) return;  
+      z.classList.remove('dragover');  
+      if (z.classList.contains('matched')) return;  
+      const draggedIdx = parseInt(e.dataTransfer.getData('photo-idx'));  
+      processDrop(i, draggedIdx, z);  
+    });  
+
+    // Prevent scrolling while touching a zone  
+    z.addEventListener('touchmove', e =&gt; e.preventDefault(), { passive: false });  
+  }  
+
+  // Build shuffled photo pool  
+  poolEl.innerHTML = '';  
+  const shuffled = shuffle(PHOTOS.map((src, idx) =&gt; ({src, idx})));  
+  for (let {src, idx} of shuffled) {  
+    const img = document.createElement('img');  
+    img.src = src;  
+    img.alt = "Photo reference " + (idx + 1);  
+    img.className = 'drop-img';  
+    img.draggable = true;  
+    img.dataset.photoIdx = idx;  
+    img.tabIndex = 0;  
+
+    img.addEventListener('dragstart', e =&gt; {  
+      if (gameComplete) { e.preventDefault(); return; }  
+      e.dataTransfer.effectAllowed = 'move';  
+      e.dataTransfer.setData('photo-idx', idx);  
+      setTimeout(() =&gt; img.classList.add('dragging'), 0);  
+    });  
+    img.addEventListener('dragend', () =&gt; img.classList.remove('dragging'));  
+
+    // Touch support  
+    img.addEventListener('touchstart', () =&gt; { if (!gameComplete) img.classList.add('dragging'); });  
+    img.addEventListener('touchend', e =&gt; {  
+      img.classList.remove('dragging');  
+      if (gameComplete) return;  
+      const touch = e.changedTouches[0];  
+      let el = document.elementFromPoint(touch.clientX, touch.clientY);  
+      while (el && !el.classList?.contains('zone') && el !== document.body) el = el.parentNode;  
+      if (el && el.classList.contains('zone') && !el.classList.contains('matched')) {  
+        const zoneIdx = parseInt(el.dataset.zone);  
+        processDrop(zoneIdx, idx, el);  
+      }  
+    });  
+
+    poolEl.appendChild(img);  
+  }  
+
+  updateStats();  
+  announce("Start the game. Drag a photo to its matching map.");  
+}  
+
+function processDrop(zoneIdx, photoIdx, zoneEl) {  
+  if (gameComplete || zoneEl.classList.contains('matched')) return;  
+  moves += 1;  
+
+  if (zoneIdx === photoIdx) {  
+    matches += 1;  
+    zoneEl.classList.add('matched');  
+
+    // Hide from pool and clone into zone  
+    const poolImg = [...poolEl.querySelectorAll('.drop-img')].find(im =&gt; parseInt(im.dataset.photoIdx) === photoIdx);  
+    if (poolImg) {  
+      poolImg.style.display = "none";  
+      const clone = poolImg.cloneNode(true);  
+      clone.draggable = false;  
+      clone.style.marginLeft = "6px";  
+      clone.style.opacity = "1";  
+      clone.classList.remove('dragging');  
+      clone.tabIndex = -1;  
+      zoneEl.appendChild(clone);  
+    }  
+
+    announce("Correct match.");  
+    updateStats();  
+
+    if (matches === MAPS.length) {  
+      gameComplete = true;  
+      announce("All matches found.");  
+      setTimeout(showCompleteMessage, 350);  
+    }  
+  } else {  
+    announce("Try again. That's not the correct photo for this map.");  
+    updateStats();  
+  }  
+}  
+
+function updateStats() {  
+  movesEl.textContent = "Moves: " + moves;  
+  matchesEl.textContent = "Matches: " + matches;  
+}  
+
+function announce(txt) { liveEl.textContent = txt; }  
+
+function showCompleteMessage() {  
+  endMsgEl.innerHTML = '<div>🎉 Thank you for playing Symbolic Map Matching!<br>All locations have been matched.<br><br>Consider the items in the T‑O maps and their placement, as compared to the photo references you matched. What differences or similarities did you notice?</div>';  
+}  
+
+renderGame();  
+</script>
+</body>
+</html>
